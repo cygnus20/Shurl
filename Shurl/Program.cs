@@ -1,10 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Shurl.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<ShurlDbContext>(options => options.UseInMemoryDatabase("shurl"));
 
 var app = builder.Build();
 
