@@ -12,4 +12,12 @@
     <PackageReference Include="Scalar.AspNetCore" Version="1.2.45" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\user\source\repos\Shurl\Shurl\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\user\source\repos\Shurl\Shurl\.editorconfig" />
+  </ItemGroup>
+
 </Project>

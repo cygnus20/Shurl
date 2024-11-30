@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Shurl.Core;
 using Shurl.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,11 +24,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () =>
+app.MapPost("/shorten", (string url) =>
 {
-    return "hello";
+    UrlService service = new UrlService(new HashService());
+    return service.Shorten(url);
 })
-.WithName("/");
+.WithName("ShortenUrl");
 
 app.Run();
 
