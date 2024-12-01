@@ -53,8 +53,21 @@ app.MapGet("/urls", async (ShurlDbContext context) =>
 
 app.MapPost("/shorten", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl) =>
 {
+    int nextId = 0;
+    try
+    {
+        nextId = (int)context.Urls.Max(u => u.Id);
+    } 
+    catch (InvalidOperationException ex)
+    {
+        nextId = 0;
+    }
+    finally
+    {
+        nextId += 1;
+    }
     UrlService service = new UrlService(new HashService());
-    var shortUrl =  $"{baseUrl.Url}{service.Shorten(url)}";
+    var shortUrl =  $"{baseUrl.Url}{service.Shorten(nextId, url)}";
     Urls urls = new Urls { LongUrl = url, ShortUrl = shortUrl };
     await context.Urls.AddAsync(urls);
     await context.SaveChangesAsync();
