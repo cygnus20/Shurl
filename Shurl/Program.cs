@@ -16,6 +16,9 @@ builder.Logging.AddDebug();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ShurlDbContext>(options => options.UseInMemoryDatabase("shurl"));
 
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IGetBaseUrl, GetBaseUrl>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,10 +51,10 @@ app.MapGet("/urls", async (ShurlDbContext context) =>
     return Results.Ok(urls);
 }).WithName("GetUrls");
 
-app.MapPost("/shorten", async (string url, ShurlDbContext context) =>
+app.MapPost("/shorten", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl) =>
 {
     UrlService service = new UrlService(new HashService());
-    var shortUrl =  service.Shorten(url);
+    var shortUrl =  $"{baseUrl.Url}{service.Shorten(url)}";
     Urls urls = new Urls { LongUrl = url, ShortUrl = shortUrl };
     await context.Urls.AddAsync(urls);
     await context.SaveChangesAsync();
