@@ -1,8 +1,10 @@
-﻿namespace Shurl.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Shurl.Models
 {
     public record Urls
     {
-        int Id { get; set; }
+        public int Id { get; set; }
         public string LongUrl { get; set; } = "";
         public string ShortUrl { get; set; } = "";
     }
