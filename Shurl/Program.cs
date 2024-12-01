@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Shurl.Core;
@@ -5,6 +6,10 @@ using Shurl.Data;
 using Shurl.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -24,6 +29,17 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapGet("/{**surl}", (string surl, [FromServices] ShurlDbContext context) =>
+{
+    var url = context.Urls.FirstOrDefault(u => u.ShortUrl == surl);
+
+    if (url != null)
+    {
+        return Results.Redirect(url.LongUrl);
+    }
+    return Results.NotFound();
+}).WithName("GotoUrl");
 
 app.MapGet("/urls", async (ShurlDbContext context) =>
 {
