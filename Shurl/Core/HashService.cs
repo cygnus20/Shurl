@@ -21,7 +21,7 @@ public class HashService
                 sb.Append(bytes[i].ToString("x2"));
             }
 
-            return sb.ToString()[^17..];
+            return sb.ToString();
         }
     }
 }
