@@ -67,12 +67,13 @@ app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl 
         nextId += 1;
     }
     UrlService service = new UrlService(new HashService());
-    var shortUrl =  $"{baseUrl.Url}{service.Shorten(nextId, url)}";
-    Urls urls = new Urls { LongUrl = url, ShortUrl = shortUrl };
+    var urlKey = service.Shorten(nextId, url);
+    var shortUrl =  $"{baseUrl.Url}{urlKey}";
+    Urls urls = new Urls { LongUrl = url, ShortUrl = urlKey };
     await context.Urls.AddAsync(urls);
     await context.SaveChangesAsync();
 
-    return Results.Ok(new { shortUrl = shortUrl });
+    return Results.Ok(new { shortUrl });
 })
 .WithName("ShortUrl");
 
