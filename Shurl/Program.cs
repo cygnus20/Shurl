@@ -51,14 +51,14 @@ app.MapGet("/urls", async (ShurlDbContext context) =>
     return Results.Ok(urls);
 }).WithName("GetUrls");
 
-app.MapPost("/shorten", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl) =>
+app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl) =>
 {
     int nextId = 0;
     try
     {
         nextId = (int)context.Urls.Max(u => u.Id);
     } 
-    catch (InvalidOperationException ex)
+    catch (InvalidOperationException)
     {
         nextId = 0;
     }
@@ -74,7 +74,7 @@ app.MapPost("/shorten", async (string url, ShurlDbContext context, IGetBaseUrl b
 
     return Results.Ok(new { shortUrl = shortUrl });
 })
-.WithName("ShortenUrl");
+.WithName("ShortUrl");
 
 app.MapDelete("/urls/{id}", async (int id, ShurlDbContext context) =>
 {
