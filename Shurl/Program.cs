@@ -25,6 +25,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IGetBaseUrl, GetBaseUrl>();
+builder.Services.AddScoped<IGetUserClaims, GetUserClaims>();
 
 var app = builder.Build();
 
