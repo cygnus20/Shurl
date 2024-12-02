@@ -41,6 +41,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+app.MapPost("/logout", async (SignInManager<IdentityUser> signInManger,
+    [FromBody] object empty) =>
+{
+    if (empty != null)
+    {
+        await signInManger.SignOutAsync();
+        return Results.Ok();
+    }
+
+    return Results.Unauthorized();
+}).RequireAuthorization();
+
+
 app.MapGet("/{**surl}", (string surl, [FromServices] ShurlDbContext context) =>
 {
     var url = context.Urls.FirstOrDefault(u => u.ShortUrl == surl);
@@ -59,7 +73,7 @@ app.MapGet("/urls", async (ShurlDbContext context) =>
     return Results.Ok(urls);
 }).WithName("GetUrls");
 
-app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl) =>
+app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl, IGetUserClaims claims) =>
 {
     int nextId = 0;
     try
@@ -77,7 +91,7 @@ app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl 
     UrlService service = new UrlService(new HashService());
     var urlKey = service.Shorten(nextId, url);
     var shortUrl =  $"{baseUrl.Url}{urlKey}";
-    Urls urls = new Urls { LongUrl = url, ShortUrl = urlKey };
+    Urls urls = new Urls { UserId = claims.UserId, LongUrl = url, ShortUrl = urlKey };
     await context.Urls.AddAsync(urls);
     await context.SaveChangesAsync();
 
