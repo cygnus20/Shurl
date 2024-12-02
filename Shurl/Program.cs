@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -7,6 +8,13 @@ using Shurl.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAuthorization();
+
+builder.Services.AddDbContext<ShurlDbContext>(
+    options => options.UseInMemoryDatabase("shurl"));
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<ShurlDbContext>();
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
@@ -14,7 +22,6 @@ builder.Logging.AddDebug();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<ShurlDbContext>(options => options.UseInMemoryDatabase("shurl"));
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IGetBaseUrl, GetBaseUrl>();
@@ -22,7 +29,7 @@ builder.Services.AddScoped<IGetBaseUrl, GetBaseUrl>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
+app.MapIdentityApi<IdentityUser>();
 app.MapOpenApi();
 
 
