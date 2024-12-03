@@ -4,11 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Shurl.Core;
 using Shurl.Data;
+using Shurl.Handlers;
 using Shurl.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthorization();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ShurlDbContext>(
     options => options.UseInMemoryDatabase("shurl"));
@@ -63,7 +66,10 @@ app.MapGet("/{**surl}", (string surl, [FromServices] ShurlDbContext context) =>
     {
         return Results.Redirect(url.LongUrl);
     }
-    return Results.NotFound();
+    return Results.Problem(
+        title: "Not found",
+        detail: "Url does not exist",
+        statusCode: StatusCodes.Status404NotFound);
 }).WithName("GotoUrl");
 
 app.MapGet("/urls", async (ShurlDbContext context) =>
@@ -71,7 +77,8 @@ app.MapGet("/urls", async (ShurlDbContext context) =>
     var urls = await context.Urls.ToListAsync();
 
     return Results.Ok(urls);
-}).WithName("GetUrls");
+}).RequireAuthorization()
+.WithName("GetUrls");
 
 app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl baseUrl, IGetUserClaims claims) =>
 {
@@ -96,7 +103,7 @@ app.MapPost("/shorturl", async (string url, ShurlDbContext context, IGetBaseUrl 
     await context.SaveChangesAsync();
 
     return Results.Ok(new { shortUrl });
-})
+}).RequireAuthorization()
 .WithName("ShortUrl");
 
 app.MapDelete("/urls/{id}", async (int id, ShurlDbContext context) =>
@@ -110,10 +117,14 @@ app.MapDelete("/urls/{id}", async (int id, ShurlDbContext context) =>
         return Results.Ok();
     }
 
-    return Results.NotFound();
+    return Results.Problem(
+        title: "Not found",
+        detail: "Url does not exist",
+        statusCode: StatusCodes.Status404NotFound);
     
 
-}).WithName("DeleteUrls");
+}).RequireAuthorization()
+.WithName("DeleteUrls");
 
 app.Run();
 
