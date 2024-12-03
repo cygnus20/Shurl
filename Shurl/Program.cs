@@ -6,8 +6,12 @@ using Shurl.Core;
 using Shurl.Data;
 using Shurl.Handlers;
 using Shurl.Models;
+using Shurl.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var postgresSettings = builder.Configuration.GetSection(nameof(PostgresSettings)).Get<PostgresSettings>();
+var connectionString = postgresSettings?.ConnectionString;
 
 builder.Services.AddAuthorization();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
