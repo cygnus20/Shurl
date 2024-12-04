@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Shurl.Core;
 using Shurl.Data;
+using Shurl.DTOs;
 using Shurl.Handlers;
 using Shurl.Models;
 using Shurl.Settings;
@@ -18,7 +19,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ShurlDbContext>(
-    options => options.UseInMemoryDatabase("shurl"));
+    options => options.UseNpgsql(connectionString));
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<ShurlDbContext>();
 
@@ -78,7 +79,8 @@ app.MapGet("/{**surl}", (string surl, [FromServices] ShurlDbContext context) =>
 
 app.MapGet("/urls", async (ShurlDbContext context) =>
 {
-    var urls = await context.Urls.ToListAsync();
+    var urls = await context.Urls
+        .Select(u => new UrlsDTO(u.Id, u.LongUrl, u.ShortUrl)).ToListAsync();
 
     return Results.Ok(urls);
 }).RequireAuthorization()
