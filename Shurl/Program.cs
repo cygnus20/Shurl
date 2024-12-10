@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 
 app.MapPost("/logout", async (SignInManager<IdentityUser> signInManger,
