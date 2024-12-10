@@ -14,6 +14,16 @@ var builder = WebApplication.CreateBuilder(args);
 var postgresSettings = builder.Configuration.GetSection(nameof(PostgresSettings)).Get<PostgresSettings>();
 var connectionString = postgresSettings?.ConnectionString;
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost", 
+        builder =>
+        {
+            builder.WithOrigins("http://localhost")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
 builder.Services.AddAuthorization();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -38,6 +48,7 @@ builder.Services.AddScoped<IGetUserClaims, GetUserClaims>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors("AllowLocalhost");
 app.MapIdentityApi<IdentityUser>();
 app.MapOpenApi();
 
